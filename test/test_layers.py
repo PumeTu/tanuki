@@ -1,7 +1,8 @@
 import unittest
 import torch
+import numpy as np
 
-from tinycnn.layers import Convolution, BatchNorm2d, ReLU
+from minigrad.nn.layers import Convolution, BatchNorm2d, ReLU
 
 class TestConvolution(unittest.TestCase):
     pass
