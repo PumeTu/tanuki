@@ -16,17 +16,7 @@ class Tensor:
     def __repr__(self):
         return f'Tensor({self.data}, requires_grad = {self.requires_grad}'
 
-    def __add__(self, other):
-        other = other if isinstance(other, Tensor) else Tensor(other)
-        self.out = Tensor(self.data + other.data)
 
-        return self.out
-
-    def __sub__(self, other):
-        other = other if isinstance(other, Tensor) else Tensor(other)
-        self.out = Tensor(self.data - other.data)
-
-        return self.out
 
     
         
