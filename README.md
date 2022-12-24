@@ -1,3 +1,3 @@
-# tinycnn
+# minigrad
 
-Implemenetation of both a CNN in torch without utilizng the autograd or the nn libraries and performing manual foward and backward passes. This is just meant to check my understanding of CNNs and a cool fun side project.
+A Deep Learning framework written in Python and Numpy, mainly used to check my understanding of how things work. I am a firm believer of if you want to truly understand the underlyings of how something works you have to be able to implement it. Thus, after procastinating for years, I am starting minigrad to implement all the layers and see if I truly understand Deep Learning and mainly autograd.
