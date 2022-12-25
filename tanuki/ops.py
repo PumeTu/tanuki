@@ -1,18 +1,14 @@
-class Operations:
-    '''
-    Operations base class
-    
-    '''
-    def __call__(self, *args):
-        raise NotImplementedError()
+from .autograd import Ops, Node, Tensor, TensorOps
+from typing import Union, Tuple
 
-    def compute(self, *args):
-        raise NotImplementedError()
+# This will be changed out later to a custom backend interface for GPU acceleration
+import numpy as array_api
+NDArray = array_api.ndarray
 
+class Add(TensorOps):
+    """Element-wise addition"""
+    def forward(self, a: NDArray, b: NDArray):
+        return a + b
     
-class Add(Operations):
-    '''
-    Element wise addition between two Tensors
-    '''
-    def __call__(self, other):
-        pass
+    def backward(self, outgrad: "Node", node: "Node"):
+        return outgrad, outgrad
