@@ -1,5 +1,5 @@
 from autograd import Ops, Node, Tensor, TensorOp
-from typing import Union, Tuple
+from typing import Union, Tuple, Optional
 
 # This will be changed out later to a custom backend interface for GPU acceleration
 import numpy as array_api
@@ -79,7 +79,7 @@ class DivScalar(TensorOp):
     def __init__(self, scalar):
         self.scalar = scalar
 
-    def foward(self, a: NDArray):
+    def forward(self, a: NDArray):
         return a / self.scalar
 
     def backward(self, outgrad: Tensor, node: Tensor):
@@ -87,3 +87,105 @@ class DivScalar(TensorOp):
 
 def div_scalar(a, scalar):
     return DivScalar(scalar)(a)
+
+class Transpose(TensorOp):
+    def __init__(self, axes: Optional[tuple] = None):
+        self.axes = axes
+
+    def forward(self, a: NDArray):
+        raise NotImplementedError()
+
+    def backward(self, outgrad: Tensor, node: Tensor):
+        raise NotImplementedError()
+
+def transpose(a, axes=None):
+    return Transpose(axes)(a)
+
+class Reshape(TensorOp):
+    def __init__(self, shape):
+        self.shape = shape
+
+    def forward(self, a: NDArray):
+        raise NotImplementedError()
+
+    def backward(self, outgrad: Tensor, node: Tensor):
+        raise NotImplementedError()
+
+def reshape(a, shape):
+    return Reshape(shape)(a)
+
+class BroadcastTo(TensorOp):
+    def __init__(self, shape):
+        self.shape = shape
+
+    def forward(self, a: NDArray):
+        return array_api.broadcast_to(a, self.shape)
+
+    def backward(self, outgrad: Tensor, node: Tensor):
+        raise NotImplementedError()
+
+def broadcast_to(a, shape):
+    return BroadcastTo(shape)(a)
+
+class Summation(TensorOp):
+    def __init__(self, axes: Optional[tuple] = None):
+        self.axes = axes
+
+    def forward(self, a: NDArray):
+        raise NotImplementedError()
+
+    def backward(self, outgrad: Tensor, node: Tensor):
+        raise NotImplementedError()
+
+def summation(a, axes=None):
+    return Summation(axes)(a)
+
+class MatMul(TensorOp):
+    def forward(self, a: NDArray, b: NDArray):
+        raise NotImplementedError()
+
+    def backward(self, outgrad: Tensor, node: Tensor):
+        raise NotImplementedError()
+
+def matmul(a, b):
+    return MatMul()(a, b)
+
+class Negate(TensorOp):
+    def forward(self, a: NDArray):
+        raise NotImplementedError()
+
+    def backward(self, outgrad: Tensor, node: Tensor):
+        raise NotImplementedError()
+
+def negate(a):
+    return Negate()(a)
+
+class Log(TensorOp):
+    def forward(self, a: NDArray):
+        raise NotImplementedError()
+
+    def backward(self, outgrad: Tensor, node: Tensor):
+        raise NotImplementedError()
+
+def log(a):
+    return Log()(a)
+
+class Exp(TensorOp):
+    def forward(self, a: NDArray):
+        raise NotImplementedError()
+
+    def backward(self, outgrad: Tensor, node: Tensor):
+        raise NotImplementedError()
+
+def exp(a):
+    return Exp()(a)
+
+class ReLU(TensorOp):
+    def forward(self, a: NDArray):
+        raise NotImplementedError()
+
+    def backward(self, outgrad: Tensor, node: Tensor):
+        raise NotImplementedError()
+
+def relu(a):
+    return ReLU()(a)
