@@ -1,11 +1,11 @@
-from .autograd import Ops, Node, Tensor, TensorOps
+from autograd import Ops, Node, Tensor, TensorOp
 from typing import Union, Tuple
 
 # This will be changed out later to a custom backend interface for GPU acceleration
 import numpy as array_api
 NDArray = array_api.ndarray
 
-class Add(TensorOps):
+class EWiseAdd(TensorOp):
     """Element-wise addition"""
     def forward(self, a: NDArray, b: NDArray):
         return a + b
