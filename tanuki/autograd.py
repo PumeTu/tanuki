@@ -56,8 +56,8 @@ class TensorOps(Op):
 
 class Node:
     """A node in the computation graph to connect tensors together and hold relationships"""
-    _op: Optional[Op]
-    _inputs: List["Node"]
+    op: Optional[Op]
+    inputs: List["Node"]
     cahced_data: NDArray
     requires_grad:bool = False
 
@@ -65,11 +65,11 @@ class Node:
         """Run compute to realize data"""
         if self.cached_data is not None:
             return self.cached_data
-        self.cached_data = self._op.forward(*[x.realize_cached_data() for x in self._inputs])
+        self.cached_data = self.op.forward(*[x.realize_cached_data() for x in self.inputs])
         return self.cached_data
     
     def is_leaf(self):
-        return self._op is None
+        return self.op is None
 
     def __del__(self):
         global TENSOR_COUNTER
@@ -77,15 +77,15 @@ class Node:
 
     def _init(
         self,
-        _op: Optional[Op],
-        _inputs: List["Tensor"],
+        op: Optional[Op],
+        inputs: List["Tensor"],
         cached_data: List[object] = None,
         requires_grad:bool = None 
     ):
         if requires_grad is None:
-            requires_grad = any(x.requires_grad for x in _inputs)
-        self._op = _op
-        self._inputs = _inputs
+            requires_grad = any(x.requires_grad for x in inputs)
+        self.op = op
+        self.inputs = inputs
         self.cached_data = cached_data
         self.requires_grad = requires_grad
 
@@ -128,9 +128,9 @@ class Tensor(Node):
         return array_api.array(array, device=device, dtype=dtype)
 
     @staticmethod
-    def make_from_op(_op: Op, _inputs: List["Node"]):
+    def make_from_op(op: Op, inputs: List["Node"]):
         tensor = Tensor.__new__(Tensor)
-        tensor._init(_op, _inputs)
+        tensor._init(op, inputs)
         if not LAZY_MODE:
             tensor.realize_cached_data()
         return tensor
