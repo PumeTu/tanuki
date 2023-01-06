@@ -57,17 +57,17 @@ class PowerScalar(TensorOp):
         self.scalar = scalar
 
     def forward(self, a: NDArray) -> NDArray:
-        raise NotImplementedError()
+        return a ** self.scalar
 
     def backward(self, outgrad: Tensor, node: Tensor):
-        raise NotImplementedError()
+        return outgrad * self.scalar * power_scalar(node.inputs[0], self.scalar-1)
 
 def power_scalar(a, scalar):
     return PowerScalar(scalar)(a)
 
 class EWiseDiv(TensorOp):
     def forward(self, a: NDArray, b: NDArray):
-        raise NotImplementedError()
+        return a / b
 
     def backward(self, outgrad: Tensor, node: Tensor):
         raise NotImplementedError()

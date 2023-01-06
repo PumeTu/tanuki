@@ -20,7 +20,7 @@ class Op:
         
         Parameters
         ----------
-        input: np.ndarray
+        input: ndarray
             A list of input arrays
 
         Returns

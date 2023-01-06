@@ -28,7 +28,10 @@ class TestOpsFoward(unittest.TestCase):
         scalar = 2
         np.testing.assert_allclose(tnk.mul_scalar(a, scalar).numpy(), a_np * scalar)
    
-    
+    def test_power_scalar(self):
+        a, a_np = tnk.Tensor([1.2, 3.2, 15.3]), np.array([1.2, 3.2, 15.3])
+        scalar = 2
+        np.testing.assert_allclose(tnk.power_scalar(a, scalar).numpy(), np.power(a_np, scalar))
 
 #------------------------------------------------------------------------------------------------
 # Test Backward Pass
