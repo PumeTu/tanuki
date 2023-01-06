@@ -82,6 +82,8 @@ class Node:
         cached_data: List[object] = None,
         requires_grad:bool = None 
     ):
+        global TENSOR_COUNTER
+        TENSOR_COUNTER += 1
         if requires_grad is None:
             requires_grad = any(x.requires_grad for x in inputs)
         self.op = op

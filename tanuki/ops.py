@@ -1,4 +1,4 @@
-from autograd import Ops, Node, Tensor, TensorOp
+from .autograd import Op, Node, Tensor, TensorOp
 from typing import Union, Tuple, Optional
 
 # This will be changed out later to a custom backend interface for GPU acceleration
@@ -49,7 +49,7 @@ class MulScalar(TensorOp):
     def backward(self, outgrad: Tensor, node: Tensor):
         return (outgrad * self.scalar,)
 
-def mul_scalr(a, scalar):
+def mul_scalar(a, scalar):
     return MulScalar(scalar)(a)
 
 class PowerScalar(TensorOp):

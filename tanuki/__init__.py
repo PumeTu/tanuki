@@ -1,3 +1,3 @@
-from .autograd import Tensor
-from .ops import *
+from tanuki.autograd import Tensor
+from tanuki.ops import *
 
