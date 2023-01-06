@@ -93,7 +93,9 @@ class Transpose(TensorOp):
         self.axes = axes
 
     def forward(self, a: NDArray):
-        return array_api.transpose(a, axes=self.axes)
+        if not self.axes:
+            return array_api.swapaxes(a, -1, -2)
+        return array_api.swapaxes(a, *self.axes)
 
     def backward(self, outgrad: Tensor, node: Tensor):
         raise NotImplementedError()
