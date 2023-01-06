@@ -33,6 +33,30 @@ class TestOpsFoward(unittest.TestCase):
         scalar = 2
         np.testing.assert_allclose(tnk.power_scalar(a, scalar).numpy(), np.power(a_np, scalar))
 
+    def test_div(self):
+        pass
+
+    def test_div_scalar(self):
+        pass
+
+    def test_matmul(self):
+        pass
+
+    def test_summation(self):
+        pass
+
+    def test_broadcast_to(self):
+        pass
+
+    def test_reshape(self):
+        pass
+
+    def test_negate(self):
+        pass
+
+    def test_transpose(self):
+        pass
+    
 #------------------------------------------------------------------------------------------------
 # Test Backward Pass
 def gradient_check(f, *args, eps=1e-6, backward=False, **kwargs):
@@ -40,6 +64,42 @@ def gradient_check(f, *args, eps=1e-6, backward=False, **kwargs):
 
 class TestOpsBackward(unittest.TestCase):
     def test_add(self):
+        pass
+
+    def test_add_scalar(self):
+        pass
+
+    def test_mul(self):
+       pass
+
+    def test_mul_scalar(self):
+       pass
+
+    def test_power_scalar(self):
+        pass
+    
+    def test_div(self):
+        pass
+
+    def test_div_scalar(self):
+        pass
+
+    def test_matmul(self):
+        pass
+
+    def test_summation(self):
+        pass
+
+    def test_broadcast_to(self):
+        pass
+
+    def test_reshape(self):
+        pass
+
+    def test_negate(self):
+        pass
+
+    def test_transpose(self):
         pass
 
 if __name__ == '__main__':

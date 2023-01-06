@@ -93,7 +93,7 @@ class Transpose(TensorOp):
         self.axes = axes
 
     def forward(self, a: NDArray):
-        raise NotImplementedError()
+        return array_api.transpose(a, axes=self.axes)
 
     def backward(self, outgrad: Tensor, node: Tensor):
         raise NotImplementedError()
@@ -106,7 +106,7 @@ class Reshape(TensorOp):
         self.shape = shape
 
     def forward(self, a: NDArray):
-        raise NotImplementedError()
+        return array_api.reshape(a, self.shape)
 
     def backward(self, outgrad: Tensor, node: Tensor):
         raise NotImplementedError()
@@ -132,7 +132,7 @@ class Summation(TensorOp):
         self.axes = axes
 
     def forward(self, a: NDArray):
-        raise NotImplementedError()
+        return array_api.sum(a, axis=self.axes)
 
     def backward(self, outgrad: Tensor, node: Tensor):
         raise NotImplementedError()
@@ -142,7 +142,7 @@ def summation(a, axes=None):
 
 class MatMul(TensorOp):
     def forward(self, a: NDArray, b: NDArray):
-        raise NotImplementedError()
+        return array_api.matmul(a, b)
 
     def backward(self, outgrad: Tensor, node: Tensor):
         raise NotImplementedError()
@@ -152,7 +152,7 @@ def matmul(a, b):
 
 class Negate(TensorOp):
     def forward(self, a: NDArray):
-        raise NotImplementedError()
+        return array_api.negative(a)
 
     def backward(self, outgrad: Tensor, node: Tensor):
         raise NotImplementedError()
@@ -162,7 +162,7 @@ def negate(a):
 
 class Log(TensorOp):
     def forward(self, a: NDArray):
-        raise NotImplementedError()
+        return array_api.log(a)
 
     def backward(self, outgrad: Tensor, node: Tensor):
         raise NotImplementedError()
@@ -172,7 +172,7 @@ def log(a):
 
 class Exp(TensorOp):
     def forward(self, a: NDArray):
-        raise NotImplementedError()
+        return array_api.exp(a)
 
     def backward(self, outgrad: Tensor, node: Tensor):
         raise NotImplementedError()
