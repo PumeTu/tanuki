@@ -252,11 +252,66 @@ class TestOpsFoward(unittest.TestCase):
     
 #------------------------------------------------------------------------------------------------
 # Test Backward Pass
-def gradient_check(f, *args, eps=1e-6, backward=False, **kwargs):
-    pass
+def gradient_check(f, *args, tolerance=1e-6, backward=False, **kwargs):
+    eps = 1e-4
+    numerical_grads = [np.zeros(a.shape) for a in args]
+    for i in range(len(args)):
+        for j in range(args[i].realize_cached_data().size):
+            args[i].realize_cached_data().flat[j] += eps
+            f1 = float(f(*args, **kwargs).numpy().sum())
+            args[i].realize_cached_data().flat[j] -= 2 * eps
+            f2 = float(f(*args, **kwargs).numpy().sum())
+            args[i].realize_cached_data().flat[j] += eps
+            numerical_grads[i].flat[j] = (f1 - f2) / (2 * eps)
+    if not backward:
+        out = f(*args, **kwargs)
+        computed_grads = [x.numpy() for x in out.op.gradient_as_tuple(tnk.Tensor(np.ones(out.shape)), out)]
+    else:
+        out = f(*args, **kwargs)
+        out.backward()
+        computed_grads = [a.grad.numpy() for a in args]
+    error = sum(np.linalg.norm(computed_grads[i] - numerical_grads[i]) for i in range(len(args)))
+    assert error < tolerance
+    return computed_grads
 
 class TestOpsBackward(unittest.TestCase):
-    pass
+    def test_divide_backwards(self):
+        gradient_check(tnk.divide, tnk.Tensor(np.random.randn(5, 4)), tnk.Tensor(np.random.randn(5, 4) + 5))
+    
+    def test_divide_scalar_backward(self):
+        gradient_check(ndl.divide_scalar, ndl.Tensor(np.random.randn(5, 4)), scalar=np.random.randn(1))
+
+    def test_matmul_simple_backward(self):
+        gradient_check(ndl.matmul, ndl.Tensor(np.random.randn(5, 4)), ndl.Tensor(np.random.randn(4, 5)))
+
+    def test_matmul_batched_backward(self):
+        gradient_check(ndl.matmul, ndl.Tensor(np.random.randn(6, 6, 5, 4)), ndl.Tensor(np.random.randn(6, 6, 4, 3)))
+        gradient_check(ndl.matmul, ndl.Tensor(np.random.randn(6, 6, 5, 4)), ndl.Tensor(np.random.randn(4, 3)))
+        gradient_check(ndl.matmul, ndl.Tensor(np.random.randn(5, 4)), ndl.Tensor(np.random.randn(6, 6, 4, 3)))
+
+    def test_reshape_backward(self):
+        gradient_check(ndl.reshape, ndl.Tensor(np.random.randn(5, 4)), shape=(4, 5))
+
+    def test_negate_backward(self):
+        gradient_check(ndl.negate, ndl.Tensor(np.random.randn(5, 4)))
+
+    def test_transpose_backward(self):
+        gradient_check(ndl.transpose, ndl.Tensor(np.random.randn(3, 5, 4)), axes=(1, 2))
+        gradient_check(ndl.transpose, ndl.Tensor(np.random.randn(3, 5, 4)), axes=(0, 1))
+
+    def test_broadcast_to_backward(self):
+        gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(3, 1)), shape=(3, 3))
+        gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(1, 3)), shape=(3, 3))
+        gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(1,)), shape=(3, 3, 3))
+        gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn()), shape=(3, 3, 3))
+        gradient_check(ndl.broadcast_to, ndl.Tensor(np.random.randn(5,4,1)), shape=(5,4,3))
+
+    def test_summation_backward(self):
+        gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5,4)), axes=(1,))
+        gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5,4)), axes=(0,))
+        gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5,4)), axes=(0,1))
+        gradient_check(ndl.summation, ndl.Tensor(np.random.randn(5,4,1)), axes=(0,1))
+
 
 if __name__ == '__main__':
     unittest.main()
