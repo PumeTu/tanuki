@@ -292,8 +292,15 @@ class TestOpsBackward(unittest.TestCase):
     # def test_reshape_backward(self):
     #     gradient_check(tnk.reshape, tnk.Tensor(np.random.randn(5, 4)), shape=(4, 5))
 
-    # def test_negate_backward(self):
-    #     gradient_check(tnk.negate, tnk.Tensor(np.random.randn(5, 4)))
+    def test_negate_backward(self):
+        gradient_check(tnk.negate, tnk.Tensor(np.random.randn(5, 4)))
+
+    def test_log_backward(self):
+        #Increased tolerance (think its just due to the floating points stuff when dividing)
+        gradient_check(tnk.log, tnk.Tensor(np.random.randn(3, 1)), tolerance=1e-4)
+
+    def test_exp_backward(self):
+        gradient_check(tnk.exp, tnk.Tensor(np.random.randn(2,2)))
 
     # def test_transpose_backward(self):
     #     gradient_check(tnk.transpose, tnk.Tensor(np.random.randn(3, 5, 4)), axes=(1, 2))

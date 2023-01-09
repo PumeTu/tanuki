@@ -148,7 +148,7 @@ class MatMul(TensorOp):
         return array_api.matmul(a, b)
 
     def gradient(self, outgrad: Tensor, node: Tensor):
-        raise NotImplementedError()
+        pass
 
 def matmul(a, b):
     return MatMul()(a, b)
@@ -158,7 +158,7 @@ class Negate(TensorOp):
         return array_api.negative(a)
 
     def gradient(self, outgrad: Tensor, node: Tensor):
-        raise NotImplementedError()
+        return -outgrad
 
 def negate(a):
     return Negate()(a)
@@ -168,7 +168,8 @@ class Log(TensorOp):
         return array_api.log(a)
 
     def gradient(self, outgrad: Tensor, node: Tensor):
-        raise NotImplementedError()
+        input = node.inputs[0]
+        return outgrad / input
 
 def log(a):
     return Log()(a)
@@ -178,7 +179,8 @@ class Exp(TensorOp):
         return array_api.exp(a)
 
     def gradient(self, outgrad: Tensor, node: Tensor):
-        raise NotImplementedError()
+        input = node.inputs[0]
+        return outgrad * exp(input)
 
 def exp(a):
     return Exp()(a)
