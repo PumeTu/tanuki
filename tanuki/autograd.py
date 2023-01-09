@@ -14,7 +14,7 @@ class Op:
     def __call__(self, *args):
         return NotImplementedError()
 
-    def forward(self, *args: Tuple[NDArray]):
+    def compute(self, *args: Tuple[NDArray]):
         """
         Calculates forward pass of operator
         
@@ -30,7 +30,7 @@ class Op:
         """
         raise NotImplementedError()
 
-    def backward(self, outgrad: "Node", node: "Node") -> Union["Node", Tuple["Node"]]:
+    def gradient(self, outgrad: "Node", node: "Node") -> Union["Node", Tuple["Node"]]:
         """
         Computes the backward pass i.e. local derivative of the node
 
@@ -49,6 +49,18 @@ class Op:
         """
         raise NotImplementedError()
 
+    def gradient_as_tuple(self, outgrad: "Node", node: "Node") -> Tuple["Node"]:
+        """
+        Convenient method to return tuple from gradient call
+        """
+        output = self.gradient(outgrad, node)
+        if isinstance(output, tuple):
+            return output
+        elif isinstance(output, list):
+            return tuple(output)
+        else:
+            return (output,)
+
 class TensorOps(Op):
     """Op class that ouputs tensors"""
     def __call__(self, *args):
@@ -65,7 +77,7 @@ class Node:
         """Run compute to realize data"""
         if self.cached_data is not None:
             return self.cached_data
-        self.cached_data = self.op.forward(*[x.realize_cached_data() for x in self.inputs])
+        self.cached_data = self.op.compute(*[x.realize_cached_data() for x in self.inputs])
         return self.cached_data
     
     def is_leaf(self):
