@@ -99,20 +99,21 @@ class Transpose(TensorOp):
         return array_api.swapaxes(a, *self.axes)
 
     def gradient(self, outgrad: Tensor, node: Tensor):
-        raise NotImplementedError()
+        return transpose(outgrad, self.axes)
 
 def transpose(a, axes=None):
     return Transpose(axes)(a)
 
 class Reshape(TensorOp):
-    def __init__(self, shape):
+    def __init__(self, shape: tuple):
         self.shape = shape
 
     def compute(self, a: NDArray):
         return array_api.reshape(a, self.shape)
 
     def gradient(self, outgrad: Tensor, node: Tensor):
-        raise NotImplementedError()
+        input = node.inputs[0]
+        return reshape(outgrad, input.shape)
 
 def reshape(a, shape):
     return Reshape(shape)(a)
@@ -125,7 +126,10 @@ class BroadcastTo(TensorOp):
         return array_api.broadcast_to(a, self.shape)
 
     def gradient(self, outgrad: Tensor, node: Tensor):
-        raise NotImplementedError()
+        input = node.inputs[0]
+        extra_dim = len(outgrad.shape) - len(input.shape)
+        index = tuple([i for i in reversed(range(len(outgrad.shape))) if i < extra_dim or outgrad.shape[i] != input.shape[i-extra_dim]])
+        return summation(outgrad, axes=index).reshape(input.shape)
 
 def broadcast_to(a, shape):
     return BroadcastTo(shape)(a)
@@ -138,7 +142,18 @@ class Summation(TensorOp):
         return array_api.sum(a, axis=self.axes)
 
     def gradient(self, outgrad: Tensor, node: Tensor):
-        raise NotImplementedError()
+        input = node.inputs[0]
+        if self.axes is None:
+            reduced_shape = [1 for i in range(len(input.shape))]
+        elif isinstance(self.axes, int):
+            reduced_shape = list(input.shape)
+            reduced_shape[self.axes] = 1
+        else:
+            reduced_shape = list(input.shape)
+            for axis in self.axes:
+                reduced_shape[axis] = 1
+        return broadcast_to(reshape(outgrad, reduced_shape), input.shape)
+
 
 def summation(a, axes=None):
     return Summation(axes)(a)
@@ -148,7 +163,9 @@ class MatMul(TensorOp):
         return array_api.matmul(a, b)
 
     def gradient(self, outgrad: Tensor, node: Tensor):
-        pass
+        lhs, rhs = node.inputs
+        grad_lhs, grad_rhs = outgrad @ transpose(rhs), transpose(lhs) @ outgrad
+        return summation(grad_lhs, tuple(range(len(grad_lhs.shape) - len(lhs.shape)))), summation(grad_rhs, tuple(range(len(grad_rhs.shape) - len(rhs.shape))))
 
 def matmul(a, b):
     return MatMul()(a, b)
@@ -187,10 +204,11 @@ def exp(a):
 
 class ReLU(TensorOp):
     def compute(self, a: NDArray):
-        raise NotImplementedError()
+        return array_api.maximum(0, a)
 
     def gradient(self, outgrad: Tensor, node: Tensor):
-        raise NotImplementedError()
+        x = node.inputs[0].realize_cached_data() > 0
+        return outgrad * x
 
 def relu(a):
     return ReLU()(a)
