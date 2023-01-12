@@ -18,15 +18,11 @@ class Op:
         """
         Calculates forward pass of operator
         
-        Parameters
-        ----------
-        input: ndarray
-            A list of input arrays
+        Args:
+            input (ndarray): A list of input arrays
 
-        Returns
-        -------
-        output: ndarray
-            Array output of operation
+        Returns:
+        output (ndarray): Array output of operation
         """
         raise NotImplementedError()
 
@@ -34,18 +30,13 @@ class Op:
         """
         Computes the backward pass i.e. local derivative of the node
 
-        Parameters
-        ----------
-        outgrad: Node
-            gradient of parent node (chain rule)
+        Args:
+        outgrad (Node): gradient of parent node (chain rule)
 
-        node: Node
-            current node to compute the local gradient on
+        node (Node): current node to compute the local gradient on
 
-        Returns
-        -------
-        grad: Node or Tuple[Node]
-            output gradient
+        Returns:
+            grad (Node or Tuple[Node]): output gradient
         """
         raise NotImplementedError()
 
@@ -246,26 +237,45 @@ class Tensor(Node):
     __rsub__ = __sub__
     __rmatmult__ = __matmul__
 
-def compute_gradient_of_variables(output_tensor, out_grad):
+def compute_gradient_of_variables(output_tensor, outgrad):
     """
     Computes gradient of output node with respect to each node in node list then stores the comptued
         gradient in the grad field of each variable
     """
     node_to_output_grads_list: Dict[Tensor, List[Tensor]] = {}
-    node_to_output_grads_list[output_tensor] = [out_grad]
+    node_to_output_grads_list[output_tensor] = [outgrad]
     reverse_topo_order = list(reversed(find_topo_sort([output_tensor])))
-
-    raise NotImplementedError()
+    for node in reverse_topo_order:
+        grad = sum_node_list(node_to_output_grads_list[node])
+        node.grad = grad
+        if node.op:
+            grad_tuple = node.op.gradient_as_tuple(grad, node)
+            for i, input in enumerate(node.inputs):
+                node_to_output_grads_list[input] = node_to_output_grads_list.get(input, [])
+                node_to_output_grads_list[input].append(grad_tuple[i])
+    return node_to_output_grads_list
+            
+    
     
 def find_topo_sort(node_list: List[Node]) -> List[Node]:
     """
-    Given a list of ndoes, return a topological sort list of nodes ending in them
+    Given a list of nodes, return a topological sort list of nodes ending in them
     """
-    raise NotImplementedError()
+    topo_order = []
+    visited = []
+    for node in node_list:
+        topo_sort_dfs(node, visited, topo_order)
+    return topo_order
 
 def topo_sort_dfs(node, visited, topo_order):
-    """"""
-    raise NotImplementedError()
+    """
+    Post Order DFS
+    """
+    visited.append(node)
+    for input in node.inputs:
+        if input not in visited:
+            topo_sort_dfs(input, visited, topo_order)
+    topo_order.append(node)
 
 class TensorOp(Op):
     """Op class that output tensors"""
