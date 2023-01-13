@@ -51,7 +51,24 @@ def nn_epoch(X, y, W1, W2, lr=0.1, batch=100):
         W1 (tnk.Tensor[float32]): trained weight of first layer
         W2 (tnk.Tensor[float32]): trained weight of second layer
     """
-    raise NotImplementedError()
+    num_examples = X.shape[0]
+    num_classes = W2.shape[1]
+    for i in range(0, num_examples, batch):
+        if i + batch > num_examples:
+            x_batch = tnk.Tensor(X[i:num_examples])
+            y_batch = y[i:num_examples]
+        else:
+            x_batch = tnk.Tensor(X[i:i+batch])
+            y_batch = y[i:i+batch]
+        logits = tnk.relu(x_batch @ W1) @ W2
+        y_one_hot = np.zeros((y_batch.shape[0], num_classes), dtype=np.float32)
+        y_one_hot[np.arange(y_batch.shape[0]), y_batch] = 1
+        y_one_hot = tnk.Tensor(y_one_hot)
+        loss = cross_entropy_loss(logits, y_one_hot)
+        loss.backward()
+        W1 = tnk.Tensor(W1.numpy() - lr * W1.grad.numpy())
+        W2 = tnk.Tensor(W2.numpy() - lr * W2.grad.numpy())
+    return W1, W2
 
 def loss_err(h,y):
     """ Helper function to compute both loss and error"""
