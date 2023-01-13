@@ -239,7 +239,7 @@ class Tensor(Node):
 
 def compute_gradient_of_variables(output_tensor, outgrad):
     """
-    Computes gradient of output node with respect to each node in node list then stores the comptued
+    Computes gradient of output node with respect to each node in node list then stores the computed 
         gradient in the grad field of each variable
     """
     node_to_output_grads_list: Dict[Tensor, List[Tensor]] = {}
@@ -254,9 +254,7 @@ def compute_gradient_of_variables(output_tensor, outgrad):
                 node_to_output_grads_list[input] = node_to_output_grads_list.get(input, [])
                 node_to_output_grads_list[input].append(grad_tuple[i])
     return node_to_output_grads_list
-            
-    
-    
+        
 def find_topo_sort(node_list: List[Node]) -> List[Node]:
     """
     Given a list of nodes, return a topological sort list of nodes ending in them

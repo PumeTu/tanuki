@@ -23,7 +23,6 @@ def parse_mnist(image_path, label_path):
         y = np.frombuffer(f.read(), "B", offset=8).astype(np.int8)
     return X, y
 
-
 def cross_entropy_loss(logits, y_one_hot):
     """
     Cross Entropy Loss
@@ -34,7 +33,8 @@ def cross_entropy_loss(logits, y_one_hot):
     Returns:
         loss (tnk.Tensor[float32]): Average softmax loss over the sample
     """
-    return tnk.summation(tnk.log(tnk.summation(tnk.exp(logits), axes=1)) - tnk.summation(logits * y_one_hot, axes=1) / logits.shape[0])
+    loss = -tnk.summation(logits * y_one_hot, axes=1) + tnk.log(tnk.summation(tnk.exp(logits), axes=1))
+    return tnk.summation(loss) / loss.shape[0]
 
 def nn_epoch(X, y, W1, W2, lr=0.1, batch=100):
     """
@@ -52,3 +52,10 @@ def nn_epoch(X, y, W1, W2, lr=0.1, batch=100):
         W2 (tnk.Tensor[float32]): trained weight of second layer
     """
     raise NotImplementedError()
+
+def loss_err(h,y):
+    """ Helper function to compute both loss and error"""
+    y_one_hot = np.zeros((y.shape[0], h.shape[-1]))
+    y_one_hot[np.arange(y.size), y] = 1
+    y_ = tnk.Tensor(y_one_hot)
+    return cross_entropy_loss(h,y_).numpy(), np.mean(h.numpy().argmax(axis=1) != y)

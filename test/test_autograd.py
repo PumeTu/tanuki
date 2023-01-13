@@ -4,8 +4,6 @@ import numpy as np
 from test.test_ops import gradient_check
 
 #------------------------------------------------------------------------------------------------
-# Test Forward Pass
-
 class TestAutograd(unittest.TestCase):
     def test_topo_sort(self):
         #Test Case 1
